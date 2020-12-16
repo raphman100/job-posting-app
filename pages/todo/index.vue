@@ -35,10 +35,10 @@
 									align-center
 								>
 									<td>
-										<v-checkbox
-											:label="todo.task"
-											v-model="todo.done"
-										/>
+										<label>
+											<input type="checkbox" :checked="todo.done" v-on:change="toggle( todo )">
+										</label>
+										<span :class="{ done: todo.done }">{{ todo.task }}</span>
 									</td>
 								</v-layout>
 							</tr>
@@ -79,6 +79,11 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+import DateUtils from '@/utils/date-utils';
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+
 export default {
 	head() {
 		return {
@@ -98,20 +103,37 @@ export default {
 		};
 	},
 	computed: {
-		todos() {
-			return this.$store.state.todos;
-		},
+		...mapState( {
+			todos: ( state ) => state.todos.todos,
+		} ),
+	},
+	mounted() {
+		firebase.firestore().collection( 'todos' ).get().then( ( res ) => {
+			res.forEach( ( rec ) => {
+				// console.log( 'rec.data 1: ', rec.data() );
+				this.$store.commit( 'todos/setTodo', rec.data() );
+			} );
+		} );
+
 	},
 	methods: {
 		submit() {
 			if ( this.todo ) {
-				this.$store.commit( 'addTodo', { task: this.todo, done: false } );
+				this.$store.commit( 'todos/addTodo', {
+					task: this.todo,
+					done: false,
+					created: DateUtils.formatCurrentDateTime( 'yyyy-mm-dd'),
+					completed: null
+				} );
 				this.todo = '';
 			}
 		},
 		deleteDoneTodos() {
 			console.log( 'Delete done' );
-			this.$store.commit( 'deleteDoneTodos' );
+			this.$store.commit( 'todos/deleteDoneTodos' );
+		},
+		toggle( todo ) {
+			this.$store.commit( 'todos/toggle', todo );
 		},
 	},
 };
@@ -129,6 +151,10 @@ export default {
 	.input[type=checkbox]:checked label {
 		text-decoration: line-through;
 		color: yellow;
+	}
+
+	.done {
+		text-decoration: line-through;
 	}
 }
 </style>

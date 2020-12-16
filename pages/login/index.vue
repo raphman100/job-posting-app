@@ -67,7 +67,7 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 
 // Vuex
-import { mapState } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
 	head() {
@@ -90,10 +90,11 @@ export default {
 		snackbar: false,
 		color: 'info',
 		timeout: 3000,
+		text: '',
 	} ),
 	computed: {
-		...mapState( {
-			isLoggedIn: ( state ) => state.user.isLoggedIn,
+		...mapGetters( {
+			isLoggedIn: 'auth/loggedIn',
 		} ),
 		comparePasswords() {
 			return this.password !== this.confirmPassword ? 'Passwords do not match' : true;
@@ -112,7 +113,7 @@ export default {
 							} )
 							.then( () => {
 								firebase.auth().onAuthStateChanged(user => {
-									this.$store.dispatch("fetchUser", user)
+									this.$store.dispatch("auth/fetchUser", user)
 										.then( () => {
 											this.text = `${ user.displayName } was successfully logged in`;
 											this.snackbar = true;

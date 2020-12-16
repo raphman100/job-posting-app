@@ -56,7 +56,7 @@ export default {
 	},
 	computed: {
 		...mapGetters( {
-			views: 'getViews',
+			views: 'jobs/getViews',
 		} ),
 	},
 	mounted() {

@@ -33,7 +33,7 @@
 				icon
 				@click.stop="miniVariant = !miniVariant"
 			>
-				<v-icon>mdi-{{ `chevron-${ miniVariant ? 'right' : 'left' }` }}</v-icon>
+				<v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
 			</v-btn>
 			<v-btn
 				icon
@@ -89,7 +89,7 @@
 
 <script>
 // Vuex
-import { mapState } from 'vuex';
+import {mapGetters} from 'vuex';
 
 export default {
 	data() {
@@ -105,27 +105,27 @@ export default {
 		};
 	},
 	computed: {
-		...mapState( {
-			isLoggedIn: ( state ) => state.user.loggedIn,
+		...mapGetters( {
+			isLoggedIn: 'auth/loggedIn',
 		} ),
 		menuItems() {
-			return ( this.isLoggedIn )
-				?	[
-						{ icon: 'mdi-apps', title: 'Home', to: '/' },
-						{ icon: 'mdi-account-multiple-outline', title: 'Jobs', to: '/jobs' },
-						{ icon: 'mdi-checkbox-marked-circle-outline', title: 'ToDo', to: '/todo' },
-						{ icon: 'mdi-chart-bubble', title: 'Inspire', to: '/inspire' },
-						{ icon: 'mdi-guy-fawkes-mask', title: 'About', to: '/about' },
-						{ icon: 'mdi-logout', title: 'Log Out', to: '/logout' }
-					]
-				:   [
-						{ icon: 'mdi-apps', title: 'Home', to: '/' },
-						{ icon: 'mdi-account-multiple-outline', title: 'Jobs', to: '/jobs' },
-						{ icon: 'mdi-checkbox-marked-circle-outline', title: 'ToDo', to: '/todo' },
-						{ icon: 'mdi-chart-bubble', title: 'Inspire', to: '/inspire' },
-						{ icon: 'mdi-guy-fawkes-mask', title: 'About', to: '/about' },
-						{ icon: 'mdi-login', title: 'Log In', to: '/login' }
-					];
+			return (this.isLoggedIn)
+				? [
+					{icon: 'mdi-apps', title: 'Home', to: '/'},
+					{icon: 'mdi-account-multiple-outline', title: 'Jobs', to: '/jobs'},
+					{icon: 'mdi-checkbox-marked-circle-outline', title: 'ToDo', to: '/todo'},
+					{icon: 'mdi-chart-bubble', title: 'Inspire', to: '/inspire'},
+					{icon: 'mdi-guy-fawkes-mask', title: 'About', to: '/about'},
+					{icon: 'mdi-logout', title: 'Log Out', to: '/logout'}
+				]
+				: [
+					{icon: 'mdi-apps', title: 'Home', to: '/'},
+					{icon: 'mdi-account-multiple-outline', title: 'Jobs', to: '/jobs'},
+					{icon: 'mdi-checkbox-marked-circle-outline', title: 'ToDo', to: '/todo'},
+					{icon: 'mdi-chart-bubble', title: 'Inspire', to: '/inspire'},
+					{icon: 'mdi-guy-fawkes-mask', title: 'About', to: '/about'},
+					{icon: 'mdi-login', title: 'Log In', to: '/login'}
+				];
 		}
 	},
 };

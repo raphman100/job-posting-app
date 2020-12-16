@@ -25,7 +25,7 @@ export default {
 	},
 	methods: {
 		async init() {
-			await this.$store.dispatch( 'logout' );
+			await this.$store.dispatch( 'auth/logout' );
 			await this.$router.push( '/' );
 		}
 	},
