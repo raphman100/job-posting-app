@@ -20,56 +20,62 @@
 						<thead>
 							<tr>
 								<th class="text-left">
-									<h2>Current ToDos</h2>
+									<h3>Current ToDos</h3>
+								</th>
+								<th class="text-right">
+									<h3>Completed</h3>
 								</th>
 							</tr>
 						</thead>
-						<tbody>
+						<tbody v-if="hasToDos">
 							<tr
 								v-for="( todo, index ) in todos"
 								:key="index"
 								class="todo-table-rows"
 							>
-								<v-layout
-									justify-start
-									align-center
-								>
-									<td>
-										<label>
-											<input type="checkbox" :checked="todo.done" v-on:change="toggle( todo )">
-										</label>
-										<span :class="{ done: todo.done }">{{ todo.task }}</span>
-									</td>
-								</v-layout>
+								<td class="text-left">
+									<label>
+										<input
+											type="checkbox"
+											:checked="todo.done"
+											:disabled="todo.done"
+											v-on:change="toggle( todo )">
+									</label>
+									<span :class="{ done: todo.done }">{{ showTask( todo ) }}</span>
+								</td>
+								<td class="text-right">
+									{{ todo.completed || '' }}
+								</td>
 							</tr>
 						</tbody>
 						<v-divider/>
 						<tfoot>
-							<v-container>
-								<v-form
-									@submit.prevent="submit()"
-								>
-										<v-row justify="space-between">
-											<v-col>
-												<v-text-field
-													v-model="todo"
-													label="Enter New ToDo Here"
-													@keydown.enter="submit()"
-												/>
-											</v-col>
-											<v-col>
-												<v-btn
-													align-end
-													color="warning"
-													style="margin-top: 0.75rem;"
-													@click="deleteDoneTodos()"
-												>
-													Delete Completed
-												</v-btn>
-											</v-col>
-										</v-row>
-								</v-form>
-							</v-container>
+							<tr>
+								<td colspan="2">
+									<v-form
+										@submit.prevent="submit()"
+									>
+											<v-row justify="space-between">
+												<v-col>
+													<v-text-field
+														v-model="todo"
+														label="Enter New ToDo Here"
+													/>
+												</v-col>
+												<v-col>
+													<v-btn
+														align-end
+														color="warning"
+														style="margin-top: 0.75rem;"
+														@click="deleteDoneTodos()"
+													>
+														Delete Completed
+													</v-btn>
+												</v-col>
+											</v-row>
+									</v-form>
+								</td>
+							</tr>
 						</tfoot>
 					</template>
 				</v-simple-table>
@@ -106,34 +112,73 @@ export default {
 		...mapState( {
 			todos: ( state ) => state.todos.todos,
 		} ),
+		hasToDos() {
+			return this.todos.length > 0;
+		},
 	},
 	mounted() {
-		firebase.firestore().collection( 'todos' ).get().then( ( res ) => {
-			res.forEach( ( rec ) => {
-				// console.log( 'rec.data 1: ', rec.data() );
-				this.$store.commit( 'todos/setTodo', rec.data() );
-			} );
-		} );
-
+		this.init();
 	},
 	methods: {
-		submit() {
-			if ( this.todo ) {
-				this.$store.commit( 'todos/addTodo', {
-					task: this.todo,
-					done: false,
-					created: DateUtils.formatCurrentDateTime( 'yyyy-mm-dd'),
-					completed: null
+		async init() {
+			await this.$store.commit( 'todos/clearTodos' );
+			firebase.firestore().collection( 'todos' ).get().then( ( res ) => {
+				console.log( 'res: ', res );
+				res.forEach( ( rec ) => {
+					console.log( 'rec.data: ', rec.data() );
+					this.$store.commit( 'todos/addTodo', { data: rec.data(), where: 'init' } );
 				} );
-				this.todo = '';
+				console.log( 'mounted: ', this.todos );
+			} );
+
+		},
+		submit() {
+			console.log( '***submit called***' );
+			if ( this.todo ) {
+				let createDate = DateUtils.formatCurrentDateTime( 'YYYY-MM-DD HH:mm:ss')
+				console.log( 'submit: ', this.todo );
+				firebase.firestore().collection( 'todos' ).add( {
+				} ).then( ( res ) => {
+					firebase.firestore().collection( 'todos' ).doc( res.id ).set( {
+						task: this.todo,
+						done: false,
+						created: createDate,
+						completed: null,
+					} ).then( ( res ) => {
+						this.$store.commit( 'todos/addTodo', {
+							data: {
+								id: res.id,
+								task: this.todo,
+								done: false,
+								created: createDate,
+								completed: null,
+							},
+							where: 'submit',
+						} )
+					} ).then( () => {
+						this.todo = '';
+					} )
+				} )
 			}
 		},
 		deleteDoneTodos() {
+			firebase.firestore().collection( 'todos' ).get().then( ( res ) => {
+				console.log( 'delete res: ', res );
+				res.forEach( ( rec ) => {
+					console.log( 'rec.data: ', rec.data() );
+					this.$store.commit( 'todos/addTodo', { data: rec.data(), where: 'init' } );
+				} );
+				console.log( 'mounted: ', this.todos );
+			} );
+
 			console.log( 'Delete done' );
 			this.$store.commit( 'todos/deleteDoneTodos' );
 		},
 		toggle( todo ) {
 			this.$store.commit( 'todos/toggle', todo );
+		},
+		showTask( todo ) {
+			return todo.task;
 		},
 	},
 };
@@ -141,7 +186,7 @@ export default {
 
 <style lang="scss">
 .todo-table {
-	width: 50%;
+	width: 75%;
 	padding: 1.0rem 2.0rem;
 
 	.todo-table-rows {
@@ -155,6 +200,7 @@ export default {
 
 	.done {
 		text-decoration: line-through;
+		color: goldenrod;
 	}
 }
 </style>

@@ -1,15 +1,16 @@
 export default {
 	addTodo ( state, payload ) {
-		console.log( 'payload: ', payload );
-		state.todos.push( payload );
-	},
-	setTodo ( state, payload ) {
+		console.log( `addTodo from ${ payload.where } : `, payload.data );
 		state.todos.push( {
-			completed: payload.completed,
-			created: payload.created,
-			done: payload.done,
-			task: payload.task,
+			id: payload.data.id,
+			task: payload.data.task,
+			done: payload.data.done,
+			created: payload.data.created,
+			completed: payload.data.completed,
 		} );
+	},
+	clearTodos ( state ) {
+		state.todos = [];
 	},
 	deleteDoneTodos ( state ) {
 		state.todos = state.todos.filter( ( todo ) => todo.done !== true );

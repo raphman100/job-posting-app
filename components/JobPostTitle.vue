@@ -14,7 +14,7 @@
 			height="200px"
 			contain
 		/>
-		<v-divider />
+		<v-divider/>
 		<v-card-title
 			class="headline font-weight-bold"
 		>
@@ -22,7 +22,7 @@
 				{{ job.title }}
 			</p>
 		</v-card-title>
-		<v-divider />
+		<v-divider/>
 		<div>
 			Views: {{ views }}
 		</div>
@@ -36,7 +36,8 @@ export default {
 		job: {
 			type: Object,
 			required: true,
-			default: () => {}
+			default: () => {
+			}
 		},
 		views: {
 			type: Number,

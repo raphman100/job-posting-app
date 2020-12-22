@@ -1,19 +1,19 @@
 const DateUtils = {
 	formatCurrentDateTime( format ) {
 		let date = new Date();
-
-		return this.formatDate( date, format );
+		return this.formatDate( date, format );;
 	},
 	formatDate( date, format ) {
-		console.log( 'date: ', date );
-		console.log( 'format: ', format );
 		const map = {
-			yy: date.getFullYear().toString().slice( -2 ),
-			yyyy: date.getFullYear(),
-			mm: date.getMonth() + 1,
-			dd: date.getDate(),
+			YYYY: date.getFullYear(),
+			MM: date.getMonth() + 1,
+			DD: date.getDate(),
+			HH: date.getHours(),
+			mm: date.getMinutes(),
+			ss: date.getSeconds(),
+
 		};
-		return format.replace(/mm|dd|yy|yyyy/gi, matched => map[ matched ]);
+		return format.replace(/MM|DD|YYYY|HH|mm|ss/g, matched => map[ matched ]);
 	},
 }
 
